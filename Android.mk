@@ -21,11 +21,7 @@ LOCAL_SRC_FILES := $(call all-java-files-under, src)
 
 LOCAL_MODULE := caliper
 
-LOCAL_STATIC_JAVA_LIBRARIES := google-collect
+LOCAL_JAVA_LIBRARIES := guava
 
-include $(BUILD_HOST_JAVA_LIBRARY)
+include $(BUILD_JAVA_LIBRARY)
 
-# prebuilt google-collect-1.0-rc4.jar
-include $(CLEAR_VARS)
-LOCAL_PREBUILT_JAVA_LIBRARIES := google-collect:lib/google-collect-1.0-rc4.jar
-include $(BUILD_HOST_PREBUILT)
