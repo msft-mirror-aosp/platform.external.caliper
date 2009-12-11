@@ -1,0 +1,8 @@
+URL: http://code.google.com/p/caliper/
+Version: r18
+License: Apache 2
+Description: "Microbenchmarking framework for Java"
+Local Modifications: No local modifications
+
+This APIs in this library are not included on the device. They may, however, be
+included in test cases etc.
