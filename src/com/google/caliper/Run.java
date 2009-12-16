@@ -18,6 +18,7 @@ package com.google.caliper;
 
 import com.google.common.collect.ImmutableMap;
 
+import java.lang.reflect.Method;
 import java.util.Map;
 
 /**
@@ -26,13 +27,9 @@ import java.util.Map;
 final class Run {
 
   private final ImmutableMap<String, String> parameters;
-  private final Class<? extends Benchmark> benchmarkClass;
   private final String vm;
 
-  public Run(Map<String, String> parameters,
-      Class<? extends Benchmark> benchmarkClass,
-      String vm) {
-    this.benchmarkClass = benchmarkClass;
+  public Run(Map<String, String> parameters, String vm) {
     this.parameters = ImmutableMap.copyOf(parameters);
     this.vm = vm;
   }
@@ -41,15 +38,11 @@ final class Run {
     return parameters;
   }
 
-  public Class<? extends Benchmark> getBenchmarkClass() {
-    return benchmarkClass;
-  }
-
   public String getVm() {
     return vm;
   }
 
   @Override public String toString() {
-    return benchmarkClass.getSimpleName() + " " + parameters;
+    return "Run" + parameters;
   }
 }
