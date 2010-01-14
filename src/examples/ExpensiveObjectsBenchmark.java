@@ -14,13 +14,10 @@
  * limitations under the License.
  */
 
-package com.google.caliper.examples;
+package examples;
 
-import com.google.caliper.Benchmark;
-import com.google.caliper.Param;
 import com.google.caliper.Runner;
 import com.google.caliper.SimpleBenchmark;
-
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
@@ -29,6 +26,7 @@ import java.util.Locale;
 /**
  * Benchmarks creation and cloning various expensive objects.
  */
+@SuppressWarnings({"ResultOfObjectAllocationIgnored"}) // TODO: should fix!
 public class ExpensiveObjectsBenchmark extends SimpleBenchmark {
     public void timeNewDecimalFormatSymbols(int reps) {
         for (int i = 0; i < reps; ++i) {
@@ -67,5 +65,10 @@ public class ExpensiveObjectsBenchmark extends SimpleBenchmark {
         for (int i = 0; i < reps; ++i) {
             sdf.clone();
         }
+    }
+
+    // TODO: remove this from all examples when IDE plugins are ready
+    public static void main(String[] args) throws Exception {
+        Runner.main(ExpensiveObjectsBenchmark.class, args);
     }
 }

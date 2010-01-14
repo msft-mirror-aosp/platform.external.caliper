@@ -14,15 +14,12 @@
  * limitations under the License.
  */
 
-package com.google.caliper.examples;
+package examples;
 
 import com.google.caliper.Param;
 import com.google.caliper.Runner;
 import com.google.caliper.SimpleBenchmark;
-
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.EnumSet;
 import java.util.Random;
 
 /**
@@ -30,33 +27,26 @@ import java.util.Random;
  */
 public class ArraySortBenchmark extends SimpleBenchmark {
 
-  @Param int length;
+  @Param({"10", "100", "1000", "10000"}) private int length;
 
-  static Collection<Integer> lengthValues = Arrays.asList(10, 100, 1000, 10000);
+  @Param private Distribution distribution;
 
-  @Param Distribution distribution;
-
-  static final Collection<Distribution> distributionValues = EnumSet.allOf(Distribution.class);
-
-  int[] values;
-  int[] copy;
+  private int[] values;
+  private int[] copy;
 
   @Override protected void setUp() throws Exception {
     values = distribution.create(length);
     copy = new int[length];
   }
 
-  public int timeSort(int reps) {
-    int dummy = 0;
+  public void timeSort(int reps) {
     for (int i = 0; i < reps; i++) {
       System.arraycopy(values, 0, copy, 0, values.length);
       Arrays.sort(copy);
-      dummy ^= copy[0];
     }
-    return dummy;
   }
 
-  enum Distribution {
+  public enum Distribution {
     SAWTOOTH {
       @Override
       int[] create(int length) {

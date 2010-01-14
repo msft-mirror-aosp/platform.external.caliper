@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2009 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,15 +14,25 @@
  * limitations under the License.
  */
 
-package com.google.caliper;
+package test;
+
+import com.google.caliper.Runner;
+import com.google.caliper.SimpleBenchmark;
 
 /**
- * Thrown upon occurrence of a runtime failure during test construction or
- * execution.
+ * Should fail with a measurement error.
  */
-public final class ExecutionException extends RuntimeException {
+public class BrokenSleepBenchmark extends SimpleBenchmark {
+  // And look, IDEA tries to warn you
+  @SuppressWarnings({"UnusedDeclaration", "UnusedParameters"})
+  public void timeSleepOneSecond(int reps) {
+    try {
+      Thread.sleep(1000);
+    } catch (InterruptedException ignored) {
+    }
+  }
 
-  public ExecutionException(Throwable throwable) {
-    super(throwable);
+  public static void main(String[] args) throws Exception {
+    Runner.main(BrokenSleepBenchmark.class, args);
   }
 }

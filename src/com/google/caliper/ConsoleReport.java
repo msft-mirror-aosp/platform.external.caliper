@@ -16,8 +16,11 @@
 
 package com.google.caliper;
 
-import com.google.common.collect.*;
-
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.LinkedHashMultimap;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Ordering;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -39,13 +42,11 @@ import java.util.Map;
 final class ConsoleReport {
 
   private static final int bargraphWidth = 30;
-  private static final String vmKey = "vm";
 
-  private final List<Parameter> parameters;
-  private final Result result;
-  private final List<Run> runs;
+  private final List<Variable> variables;
+  private final Run run;
+  private final List<Scenario> scenarios;
 
-  private final double minValue;
   private final double maxValue;
   private final double logMaxValue;
   private final int decimalDigits;
@@ -53,53 +54,51 @@ final class ConsoleReport {
   private final String units;
   private final int measurementColumnLength;
 
-  public ConsoleReport(Result result) {
-    this.result = result;
+  ConsoleReport(Run run) {
+    this.run = run;
 
-    double minValue = Double.POSITIVE_INFINITY;
-    double maxValue = 0;
+    double min = Double.POSITIVE_INFINITY;
+    double max = 0;
 
     Multimap<String, String> nameToValues = LinkedHashMultimap.create();
-    List<Parameter> parametersBuilder = new ArrayList<Parameter>();
-    for (Map.Entry<Run, Double> entry : result.getMeasurements().entrySet()) {
-      Run run = entry.getKey();
+    List<Variable> variablesBuilder = new ArrayList<Variable>();
+    for (Map.Entry<Scenario, Double> entry : run.getMeasurements().entrySet()) {
+      Scenario scenario = entry.getKey();
       double d = entry.getValue();
 
-      minValue = Math.min(minValue, d);
-      maxValue = Math.max(maxValue, d);
+      min = Math.min(min, d);
+      max = Math.max(max, d);
 
-      for (Map.Entry<String, String> parameter : run.getParameters().entrySet()) {
-        String name = parameter.getKey();
-        nameToValues.put(name, parameter.getValue());
+      for (Map.Entry<String, String> variable : scenario.getVariables().entrySet()) {
+        String name = variable.getKey();
+        nameToValues.put(name, variable.getValue());
       }
-
-      nameToValues.put(vmKey, run.getVm());
     }
 
     for (Map.Entry<String, Collection<String>> entry : nameToValues.asMap().entrySet()) {
-      Parameter parameter = new Parameter(entry.getKey(), entry.getValue());
-      parametersBuilder.add(parameter);
+      Variable variable = new Variable(entry.getKey(), entry.getValue());
+      variablesBuilder.add(variable);
     }
 
     /*
-     * Figure out how much influence each parameter has on the measured value.
-     * We sum the measurements taken with each value of each parameter. For
-     * parameters that have influence on the measurement, the sums will differ
-     * by value. If the parameter has little influence, the sums will be similar
+     * Figure out how much influence each variable has on the measured value.
+     * We sum the measurements taken with each value of each variable. For
+     * variable that have influence on the measurement, the sums will differ
+     * by value. If the variable has little influence, the sums will be similar
      * to one another and close to the overall average. We take the standard
-     * deviation across each parameters collection of sums. Higher standard
+     * deviation across each variable's collection of sums. Higher standard
      * deviation implies higher influence on the measured result.
      */
     double sumOfAllMeasurements = 0;
-    for (double measurement : result.getMeasurements().values()) {
+    for (double measurement : run.getMeasurements().values()) {
       sumOfAllMeasurements += measurement;
     }
-    for (Parameter parameter : parametersBuilder) {
-      int numValues = parameter.values.size();
+    for (Variable variable : variablesBuilder) {
+      int numValues = variable.values.size();
       double[] sumForValue = new double[numValues];
-      for (Map.Entry<Run, Double> entry : result.getMeasurements().entrySet()) {
-        Run run = entry.getKey();
-        sumForValue[parameter.index(run)] += entry.getValue();
+      for (Map.Entry<Scenario, Double> entry : run.getMeasurements().entrySet()) {
+        Scenario scenario = entry.getKey();
+        sumForValue[variable.index(scenario)] += entry.getValue();
       }
       double mean = sumOfAllMeasurements / sumForValue.length;
       double stdDeviationSquared = 0;
@@ -107,16 +106,15 @@ final class ConsoleReport {
         double distance = value - mean;
         stdDeviationSquared += distance * distance;
       }
-      parameter.stdDeviation = Math.sqrt(stdDeviationSquared / numValues);
+      variable.stdDeviation = Math.sqrt(stdDeviationSquared / numValues);
     }
 
-    this.parameters = new StandardDeviationOrdering().reverse().sortedCopy(parametersBuilder);
-    this.runs = new ByParametersOrdering().sortedCopy(result.getMeasurements().keySet());
-    this.minValue = minValue;
-    this.maxValue = maxValue;
-    this.logMaxValue = Math.log(maxValue);
+    this.variables = new StandardDeviationOrdering().reverse().sortedCopy(variablesBuilder);
+    this.scenarios = new ByVariablesOrdering().sortedCopy(run.getMeasurements().keySet());
+    this.maxValue = max;
+    this.logMaxValue = Math.log(max);
 
-    int numDigitsInMin = (int) Math.ceil(Math.log10(minValue));
+    int numDigitsInMin = ceil(Math.log10(min));
     if (numDigitsInMin > 9) {
       divideBy = 1000000000;
       decimalDigits = Math.max(0, 9 + 3 - numDigitsInMin);
@@ -134,41 +132,37 @@ final class ConsoleReport {
       decimalDigits = 0;
       units = "ns";
     }
-    measurementColumnLength = maxValue > 0
-        ? (int) Math.ceil(Math.log10(maxValue / divideBy)) + decimalDigits + 1
+    measurementColumnLength = max > 0
+        ? ceil(Math.log10(max / divideBy)) + decimalDigits + 1
         : 1;
   }
 
   /**
-   * A parameter plus all of its values.
+   * A variable and the set of values to which it has been assigned.
    */
-  static class Parameter {
+  private static class Variable {
     final String name;
     final ImmutableList<String> values;
     final int maxLength;
     double stdDeviation;
 
-    public Parameter(String name, Collection<String> values) {
+    Variable(String name, Collection<String> values) {
       this.name = name;
       this.values = ImmutableList.copyOf(values);
 
-      int maxLength = name.length();
+      int maxLen = name.length();
       for (String value : values) {
-        maxLength = Math.max(maxLength, value.length());
+        maxLen = Math.max(maxLen, value.length());
       }
-      this.maxLength = maxLength;
+      this.maxLength = maxLen;
     }
 
-    String get(Run run) {
-      if (vmKey.equals(name)) {
-        return run.getVm();
-      } else {
-        return run.getParameters().get(name);
-      }
+    String get(Scenario scenario) {
+      return scenario.getVariables().get(name);
     }
 
-    int index(Run run) {
-      return values.indexOf(get(run));
+    int index(Scenario scenario) {
+      return values.indexOf(get(scenario));
     }
 
     boolean isInteresting() {
@@ -177,23 +171,23 @@ final class ConsoleReport {
   }
 
   /**
-   * Orders the different parameters by their standard deviation. This results
+   * Orders the different variables by their standard deviation. This results
    * in an appropriate grouping of output values.
    */
-  static class StandardDeviationOrdering extends Ordering<Parameter> {
-    public int compare(Parameter a, Parameter b) {
+  private static class StandardDeviationOrdering extends Ordering<Variable> {
+    public int compare(Variable a, Variable b) {
       return Double.compare(a.stdDeviation, b.stdDeviation);
     }
   }
 
   /**
-   * Orders runs by the parameters.
+   * Orders scenarios by the variables.
    */
-  class ByParametersOrdering extends Ordering<Run> {
-    public int compare(Run a, Run b) {
-      for (Parameter parameter : parameters) {
-        int aValue = parameter.values.indexOf(parameter.get(a));
-        int bValue = parameter.values.indexOf(parameter.get(b));
+  private class ByVariablesOrdering extends Ordering<Scenario> {
+    public int compare(Scenario a, Scenario b) {
+      for (Variable variable : variables) {
+        int aValue = variable.values.indexOf(variable.get(a));
+        int bValue = variable.values.indexOf(variable.get(b));
         int diff = aValue - bValue;
         if (diff != 0) {
           return diff;
@@ -206,7 +200,7 @@ final class ConsoleReport {
   void displayResults() {
     printValues();
     System.out.println();
-    printUninterestingParameters();
+    printUninterestingVariables();
   }
 
   /**
@@ -214,33 +208,33 @@ final class ConsoleReport {
    */
   private void printValues() {
     // header
-    for (Parameter parameter : parameters) {
-      if (parameter.isInteresting()) {
-        System.out.printf("%" + parameter.maxLength + "s ", parameter.name);
+    for (Variable variable : variables) {
+      if (variable.isInteresting()) {
+        System.out.printf("%" + variable.maxLength + "s ", variable.name);
       }
     }
     System.out.printf("%" + measurementColumnLength + "s logarithmic runtime%n", units);
 
     // rows
     String numbersFormat = "%" + measurementColumnLength + "." + decimalDigits + "f %s%n";
-    for (Run run : runs) {
-      for (Parameter parameter : parameters) {
-        if (parameter.isInteresting()) {
-          System.out.printf("%" + parameter.maxLength + "s ", parameter.get(run));
+    for (Scenario scenario : scenarios) {
+      for (Variable variable : variables) {
+        if (variable.isInteresting()) {
+          System.out.printf("%" + variable.maxLength + "s ", variable.get(scenario));
         }
       }
-      double measurement = result.getMeasurements().get(run);
+      double measurement = run.getMeasurements().get(scenario);
       System.out.printf(numbersFormat, measurement / divideBy, bargraph(measurement));
     }
   }
 
   /**
-   * Prints parameters with only one unique value.
+   * Prints variables with only one unique value.
    */
-  private void printUninterestingParameters() {
-    for (Parameter parameter : parameters) {
-      if (!parameter.isInteresting()) {
-        System.out.println(parameter.name + ": " + Iterables.getOnlyElement(parameter.values));
+  private void printUninterestingVariables() {
+    for (Variable variable : variables) {
+      if (!variable.isInteresting()) {
+        System.out.println(variable.name + ": " + Iterables.getOnlyElement(variable.values));
       }
     }
   }
@@ -250,17 +244,27 @@ final class ConsoleReport {
    * value.
    */
   private String bargraph(double value) {
-    int numLinearChars = (int) ((value / maxValue) * bargraphWidth);
+    int numLinearChars = floor(value / maxValue * bargraphWidth);
     double logValue = Math.log(value);
-    int numChars = (int) ((logValue / logMaxValue) * bargraphWidth);
-    StringBuilder result = new StringBuilder(numChars);
+    int numChars = floor(logValue / logMaxValue * bargraphWidth);
+    StringBuilder sb = new StringBuilder(numChars);
     for (int i = 0; i < numLinearChars; i++) {
-      result.append("X");
+      sb.append("X");
     }
 
     for (int i = numLinearChars; i < numChars; i++) {
-      result.append("|");
+      sb.append("|");
     }
-    return result.toString();
+    return sb.toString();
+  }
+
+  @SuppressWarnings("NumericCastThatLosesPrecision")
+  private static int floor(double d) {
+    return (int) d;
+  }
+
+  @SuppressWarnings("NumericCastThatLosesPrecision")
+  private static int ceil(double d) {
+    return (int) Math.ceil(d);
   }
 }

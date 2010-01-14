@@ -14,24 +14,25 @@
  * limitations under the License.
  */
 
-package com.google.caliper;
+package test;
 
-import com.google.common.collect.ImmutableMap;
-
-import java.util.Map;
+import com.google.caliper.Runner;
+import com.google.caliper.SimpleBenchmark;
 
 /**
- * The complete result of a benchmark suite run.
+ * If everything is working properly, this should report runtime very close to
+ * 1ms.
  */
-final class Result {
+public class ThreadSleepBenchmark extends SimpleBenchmark {
 
-  private final ImmutableMap<Run, Double> measurements;
-
-  public Result(Map<Run, Double> measurements) {
-    this.measurements = ImmutableMap.copyOf(measurements);
+  public void timeSleep(int reps) {
+    try {
+      Thread.sleep(reps);
+    } catch (InterruptedException ignored) {
+    }
   }
 
-  public ImmutableMap<Run, Double> getMeasurements() {
-    return measurements;
+  public static void main(String[] args) throws Exception {
+    Runner.main(ThreadSleepBenchmark.class, args);
   }
 }

@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package com.google.caliper.examples;
+package examples;
 
 import com.google.caliper.Runner;
 import com.google.caliper.SimpleBenchmark;
-
 import java.util.Formatter;
 
 /**

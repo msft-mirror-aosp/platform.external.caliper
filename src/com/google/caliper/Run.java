@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2009 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,33 +16,77 @@
 
 package com.google.caliper;
 
-import com.google.common.collect.ImmutableMap;
-
-import java.lang.reflect.Method;
+import java.io.Serializable;
+import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * A configured benchmark.
+ * The complete result of a benchmark suite run.
+ *
+ * <p>Gwt-safe.
  */
-final class Run {
+public final class Run
+    implements Serializable /* for GWT Serialization */ {
 
-  private final ImmutableMap<String, String> parameters;
-  private final String vm;
+  private /*final*/ Map<Scenario, Double> measurements;
+  private /*final*/ String benchmarkName;
+  private /*final*/ String executedByUuid;
+  private /*final*/ long executedTimestamp;
 
-  public Run(Map<String, String> parameters, String vm) {
-    this.parameters = ImmutableMap.copyOf(parameters);
-    this.vm = vm;
+  // TODO: add more run properites such as checksums of the executed code
+
+  public Run(Map<Scenario, Double> measurements,
+      String benchmarkName, String executedByUuid, Date executedTimestamp) {
+    if (benchmarkName == null || executedByUuid == null || executedTimestamp == null) {
+      throw new NullPointerException();
+    }
+
+    this.measurements = new LinkedHashMap<Scenario, Double>(measurements);
+    this.benchmarkName = benchmarkName;
+    this.executedByUuid = executedByUuid;
+    this.executedTimestamp = executedTimestamp.getTime();
   }
 
-  public ImmutableMap<String, String> getParameters() {
-    return parameters;
+  public Map<Scenario, Double> getMeasurements() {
+    return measurements;
   }
 
-  public String getVm() {
-    return vm;
+  public String getBenchmarkName() {
+    return benchmarkName;
+  }
+
+  public String getExecutedByUuid() {
+    return executedByUuid;
+  }
+
+  public Date getExecutedTimestamp() {
+    return new Date(executedTimestamp);
+  }
+
+  @Override public boolean equals(Object o) {
+    if (o instanceof Run) {
+      Run that = (Run) o;
+      return measurements.equals(that.measurements)
+          && benchmarkName.equals(that.benchmarkName)
+          && executedByUuid.equals(that.executedByUuid)
+          && executedTimestamp == that.executedTimestamp;
+    }
+
+    return false;
+  }
+
+  @Override public int hashCode() {
+    int result = measurements.hashCode();
+    result = result * 37 + benchmarkName.hashCode();
+    result = result * 37 + executedByUuid.hashCode();
+    result = result * 37 + (int) ((executedTimestamp >> 32) ^ executedTimestamp);
+    return result;
   }
 
   @Override public String toString() {
-    return "Run" + parameters;
+    return measurements.toString();
   }
+
+  private Run() {} // for GWT Serialization
 }

@@ -14,24 +14,21 @@
  * limitations under the License.
  */
 
-package com.google.caliper.examples;
+package examples;
 
 import com.google.caliper.Param;
 import com.google.caliper.Runner;
 import com.google.caliper.SimpleBenchmark;
-
 import java.util.AbstractList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 
 /**
  * Measures iterating through list elements.
  */
 public class ListIterationBenchmark extends SimpleBenchmark {
-  @Param private int length;
 
-  private static final Collection<Integer> lengthValues = Arrays.asList(0, 10, 100, 1000);
+  @Param({"0", "10", "100", "1000"})
+  private int length;
 
   private List<Object> list;
   private Object[] array;
@@ -53,24 +50,20 @@ public class ListIterationBenchmark extends SimpleBenchmark {
     };
   }
 
-  public int timeListIteration(int reps) {
-    int count = 0;
+  @SuppressWarnings({"UnusedDeclaration"}) // TODO: fix
+  public void timeListIteration(int reps) {
     for (int i = 0; i < reps; i++) {
       for (Object value : list) {
-        count ^= value.hashCode(); // prevent overoptimization
       }
     }
-    return count; // ignored
   }
 
-  public int timeArrayIteration(int reps) {
-    int count = 0;
+  @SuppressWarnings({"UnusedDeclaration"}) // TODO: fix
+  public void timeArrayIteration(int reps) {
     for (int i = 0; i < reps; i++) {
       for (Object value : array) {
-        count ^= value.hashCode(); // prevent overoptimization
       }
     }
-    return count; // ignored
   }
 
   // TODO: remove this from all examples when IDE plugins are ready

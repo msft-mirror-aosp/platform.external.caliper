@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 Google Inc.
+ * Copyright (C) 2010 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,24 @@
  * limitations under the License.
  */
 
-package com.google.caliper;
+package test;
 
-import java.util.Map;
-import java.util.Set;
+import com.google.caliper.SimpleBenchmark;
+import com.google.caliper.Runner;
 
 /**
- * A collection of benchmarks that share a set of configuration parameters.
+ * Demonstrates that the benchmark can emit output without consequence.
  */
-public interface Benchmark {
+public class SystemOutAndErrBenchmark extends SimpleBenchmark {
+  
+  public void timeSystemOutAndSystemErr(int reps) {
+    for (int i = 0; i < reps; i++) {
+      System.out.println("hello, out");
+      System.err.println("hello, err");
+    }
+  }
 
-  Set<String> parameterNames();
-
-  Set<String> parameterValues(String parameterName);
-
-  TimedRunnable createBenchmark(Map<String, String> parameterValues);
+  public static void main(String[] args) {
+    Runner.main(SystemOutAndErrBenchmark.class, args);
+  }
 }

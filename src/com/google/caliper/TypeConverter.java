@@ -16,42 +16,44 @@
 
 package com.google.caliper;
 
+import com.google.common.collect.ImmutableMap;
+import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.util.Map;
 
 /**
  * Convert objects to and from Strings.
  */
-class TypeConverter {
+final class TypeConverter {
+  private TypeConverter() {}
 
-  // the enum to strings conversion is manually checked
+  public static Object fromString(String value, Type type) {
+    Class<?> c = wrap((Class<?>) type);
+    try {
+      Method m = c.getMethod("valueOf", String.class);
+      return m.invoke(null, value);
+    } catch (Exception e) {
+      throw new UnsupportedOperationException(
+          "Cannot convert " + value + " of type " + type, e);
+    }
+  }
+
+  // safe because both Long.class and long.class are of type Class<Long>
   @SuppressWarnings("unchecked")
-  public Object fromString(String value, Type type) {
-    if (type instanceof Class) {
-      Class<?> c = (Class<?>) type;
-      if (c.isEnum()) {
-          return Enum.valueOf((Class) c, value);
-      } else if (type == Double.class || type == double.class) {
-        return Double.valueOf(value);
-      } else if (type == Integer.class || type == int.class) {
-        return Integer.valueOf(value);
-      }
-    }
-    throw new UnsupportedOperationException(
-        "Cannot convert " + value + " of type " + type);
+  private static <T> Class<T> wrap(Class<T> c) {
+    return c.isPrimitive() ? (Class<T>) PRIMITIVES_TO_WRAPPERS.get(c) : c;
   }
 
-  public String toString(Object value, Type type) {
-    if (type instanceof Class) {
-      Class<?> c = (Class<?>) type;
-      if (c.isEnum()) {
-        return value.toString();
-      } else if (type == Double.class || type == double.class) {
-        return value.toString();
-      } else if (type == Integer.class || type == int.class) {
-        return value.toString();
-      }
-    }
-    throw new UnsupportedOperationException(
-        "Cannot convert " + value + " of type " + type);
-  }
+  private static final Map<Class<?>, Class<?>> PRIMITIVES_TO_WRAPPERS
+    = new ImmutableMap.Builder<Class<?>, Class<?>>()
+      .put(boolean.class, Boolean.class)
+      .put(byte.class, Byte.class)
+      .put(char.class, Character.class)
+      .put(double.class, Double.class)
+      .put(float.class, Float.class)
+      .put(int.class, Integer.class)
+      .put(long.class, Long.class)
+      .put(short.class, Short.class)
+      .put(void.class, Void.class)
+      .build();
 }

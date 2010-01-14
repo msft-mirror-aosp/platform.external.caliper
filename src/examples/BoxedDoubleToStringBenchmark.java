@@ -14,23 +14,24 @@
  * limitations under the License.
  */
 
-package com.google.caliper.examples;
+package examples;
 
-import com.google.caliper.SimpleBenchmark;
 import com.google.caliper.Param;
 import com.google.caliper.Runner;
-
-import java.util.Arrays;
+import com.google.caliper.SimpleBenchmark;
+import com.google.common.collect.ImmutableList;
 import java.util.Collection;
 
 /**
- * Measures the various ways the JDK converts primitive doubles to Strings.
+ * Measures the various ways the JDK converts boxed Doubles to Strings.
  */
-public class PrimitiveDoubleToStringBenchmark extends SimpleBenchmark {
+public class BoxedDoubleToStringBenchmark extends SimpleBenchmark {
 
-  @Param private double d;
+  @Param private Double d;
 
-  private static final Collection<Double> dValues = Arrays.asList(
+  // Expressing these as strings in the annotation parameter would be annoying
+  // (and maybe not possible?)
+  public static final Collection<Double> dValues = ImmutableList.of(
       Math.PI,
       -0.0d,
       Double.NEGATIVE_INFINITY,
@@ -38,7 +39,7 @@ public class PrimitiveDoubleToStringBenchmark extends SimpleBenchmark {
   );
 
   public int timeStringFormat(int reps) {
-    double value = d;
+    Double value = d;
     int dummy = 0;
     for (int i = 0; i < reps; i++) {
       dummy += String.format("%f", value).length();
@@ -47,16 +48,16 @@ public class PrimitiveDoubleToStringBenchmark extends SimpleBenchmark {
   }
 
   public int timeToString(int reps) {
-    double value = d;
+    Double value = d;
     int dummy = 0;
     for (int i = 0; i < reps; i++) {
-      dummy += ((Double) value).toString().length();
+      dummy += value.toString().length();
     }
     return dummy;
   }
 
   public int timeStringValueOf(int reps) {
-    double value = d;
+    Double value = d;
     int dummy = 0;
     for (int i = 0; i < reps; i++) {
       dummy += String.valueOf(value).length();
@@ -65,16 +66,16 @@ public class PrimitiveDoubleToStringBenchmark extends SimpleBenchmark {
   }
 
   public int timeQuoteTrick(int reps) {
-    double value = d;
+    Double value = d;
     int dummy = 0;
     for (int i = 0; i < reps; i++) {
-      dummy = ("" + value).length();
+      dummy += ("" + value).length();
     }
     return dummy;
   }
 
   // TODO: remove this from all examples when IDE plugins are ready
   public static void main(String[] args) throws Exception {
-    Runner.main(PrimitiveDoubleToStringBenchmark.class, args);
+    Runner.main(BoxedDoubleToStringBenchmark.class, args);
   }
 }
