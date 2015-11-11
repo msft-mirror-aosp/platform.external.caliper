@@ -1,0 +1,10 @@
+URL: https://github.com/google/caliper.git
+License: Apache 2
+Description: "Google's Caliper Benchmarking And Measuring Tool"
+
+Version: 0.5-rc1
+
+Some of the examples do not build, that is an issue with upstream.
+
+Local Patches:
+    None
