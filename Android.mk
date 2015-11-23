@@ -1,4 +1,4 @@
-# Copyright (C) 2014 The Android Open Source Project
+# Copyright (C) 2015 The Android Open Source Project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
 
 LOCAL_PATH := $(call my-dir)
 
-# build caliper jar
+# build caliper target jar
 # ============================================================
 
 include $(CLEAR_VARS)
@@ -29,6 +29,22 @@ LOCAL_STATIC_JAVA_LIBRARIES := \
   caliper-gson \
   caliper-java-allocation-instrumenter \
   guava
+
+include $(BUILD_STATIC_JAVA_LIBRARY)
+
+# build caliper tests
+# ============================================================
+
+include $(CLEAR_VARS)
+
+LOCAL_MODULE := caliper-tests
+LOCAL_MODULE_TAGS := optional
+LOCAL_MODULE_CLASS := JAVA_LIBRARIES
+LOCAL_SRC_FILES := $(call all-java-files-under, caliper/src/test/java/)
+
+LOCAL_STATIC_JAVA_LIBRARIES := \
+  caliper-target \
+  junit-target
 
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
