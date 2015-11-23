@@ -14,23 +14,23 @@
 
 LOCAL_PATH := $(call my-dir)
 
-# build caliper target jar
+# build caliper host jar
 # ============================================================
 
 include $(CLEAR_VARS)
 
-LOCAL_MODULE := caliper-target
+LOCAL_MODULE := caliper-host
 LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE_CLASS := JAVA_LIBRARIES
 LOCAL_SRC_FILES := $(call all-java-files-under, caliper/src/main/java/)
 LOCAL_JAVA_RESOURCE_DIRS := caliper/src/main/resources
 
 LOCAL_STATIC_JAVA_LIBRARIES := \
-  caliper-gson \
-  caliper-java-allocation-instrumenter \
-  guava
+  caliper-gson-host \
+  caliper-java-allocation-instrumenter-host \
+  guavalib
 
-include $(BUILD_STATIC_JAVA_LIBRARY)
+include $(BUILD_HOST_JAVA_LIBRARY)
 
 # build caliper tests
 # ============================================================
@@ -43,17 +43,17 @@ LOCAL_MODULE_CLASS := JAVA_LIBRARIES
 LOCAL_SRC_FILES := $(call all-java-files-under, caliper/src/test/java/)
 
 LOCAL_STATIC_JAVA_LIBRARIES := \
-  caliper-target \
-  junit-target
+  caliper-host \
+  junit
 
-include $(BUILD_STATIC_JAVA_LIBRARY)
+include $(BUILD_HOST_JAVA_LIBRARY)
 
 # Build dependencies.
 # ============================================================
 include $(CLEAR_VARS)
 
-LOCAL_PREBUILT_STATIC_JAVA_LIBRARIES := \
-    caliper-gson:lib/gson-1.7.1$(COMMON_JAVA_PACKAGE_SUFFIX) \
-    caliper-java-allocation-instrumenter:lib/java-allocation-instrumenter-2.0$(COMMON_JAVA_PACKAGE_SUFFIX)
+LOCAL_PREBUILT_JAVA_LIBRARIES := \
+    caliper-gson-host:lib/gson-1.7.1$(COMMON_JAVA_PACKAGE_SUFFIX) \
+    caliper-java-allocation-instrumenter-host:lib/java-allocation-instrumenter-2.0$(COMMON_JAVA_PACKAGE_SUFFIX)
 
-include $(BUILD_MULTI_PREBUILT)
+include $(BUILD_HOST_PREBUILT)
