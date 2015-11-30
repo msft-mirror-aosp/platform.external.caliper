@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 Google Inc.
+ * Copyright (C) 2013 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,40 +16,64 @@
 
 package com.google.caliper;
 
-import java.util.Map;
-import java.util.Set;
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 
 /**
- * A collection of benchmarks that share a set of configuration parameters.
+ * Annotation for benchmark methods. To write a benchmark:
+ *
+ * <ol>
+ *   <li>Annotate one or more methods with this annotation.
+ *   <li>Annotate any fields with {@literal @}{@link Param} that should have parameter values
+ *       injected (see {@literal @}{@link Param} for more details)
+ *   <li>Optionally use {@link BeforeExperiment} and {@link AfterExperiment} on setup and teardown
+ *       methods
+ * </ol>
+ *
+ * <p>Since many benchmarks may execute in a shorter duration than is accurately measured by
+ * available timers, benchmark methods <i>may</i> take either an {@code int} or {@code long}
+ * argument representing a number of repetitions to perform in a given execution. It is critical
+ * that the work done in the benchmark method scale linearly to the number of repetitions.
+ *
+ * <p>Benchmark methods may return any value. It will be ignored.
+ *
+ * <p>This class is instantiated and injected only once per child VM invocation, to measure one
+ * particular combination of parameters.
+ *
+ * <p>For example: <pre>   {@code
+ *   public final class MyBenchmark {
+ *     {@literal @}Param FeatureEnum feature;
+ *     {@literal @}Param({"1", "10", "100"}) int size;
+ *     private MyObject objectToBenchmark;
+ *
+ *     {@literal @}BeforeExperiment void initializeObject() {
+ *       objectToBenchmark = new MyObject(size);
+ *     }
+ *
+ *     {@literal @}Benchmark int foo(int reps) {
+ *       MyObject object = objectToBenchmark;  // copy to local to avoid field access overhead
+ *       int dummy = 0;
+ *       for (int i = 0; i < reps; i++) {
+ *         dummy += object.foo(feature);
+ *       }
+ *       // return a dummy value so the JIT compiler doesn't optimize away the entire method.
+ *       return dummy;
+ *     }
+ *
+ *     {@literal @}Benchmark int bar() {
+ *       // benchmark another operation of MyObject that doesn't require a reps parameter
+ *     }
+ *   }
+ * </pre>
+ *
+ * <p>The benchmark class MyBenchmark has two benchmark methods ({@code foo} and {@code bar}) and
+ * two {@link Param Params} ({@code feature} and {@code size}). For each experiment performed by
+ * Caliper (e.g. {@code foo} with {@code feature == FeatureEnum.A} and {@code size == 100}),
+ * {@code initializeObject} will be called exactly once, but {@code foo} may be called many times.
  */
-public interface Benchmark {
-
-  Set<String> parameterNames();
-
-  Set<String> parameterValues(String parameterName);
-
-  ConfiguredBenchmark createBenchmark(Map<String, String> parameterValues);
-
-  /**
-   * A mapping of units to their values. Their values must be integers, but all values are relative,
-   * so if one unit is 1.5 times the size of another, then these units can be expressed as
-   * {"unit1"=10,"unit2"=15}. The smallest unit given by the function will be used to display
-   * immediate results when running at the command line.
-   *
-   * e.g. 0% Scenario{...} 16.08<SMALLEST-UNIT>; σ=1.72<SMALLEST-UNIT> @ 3 trials
-   */
-  Map<String, Integer> getTimeUnitNames();
-
-  Map<String, Integer> getInstanceUnitNames();
-
-  Map<String, Integer> getMemoryUnitNames();
-
-  /**
-   * Converts nanoseconds to the smallest unit defined in {@link #getTimeUnitNames()}.
-   */
-  double nanosToUnits(double nanos);
-
-  double instancesToUnits(long instances);
-
-  double bytesToUnits(long bytes);
-}
+@Target(METHOD)
+@Retention(RUNTIME)
+public @interface Benchmark {}

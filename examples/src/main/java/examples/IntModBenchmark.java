@@ -16,17 +16,16 @@
 
 package examples;
 
-import com.google.caliper.Runner;
-import com.google.caliper.SimpleBenchmark;
+import com.google.caliper.Benchmark;
 
 /**
  * Measures several candidate implementations for mod().
  */
 @SuppressWarnings("SameParameterValue")
-public class IntModBenchmark extends SimpleBenchmark {
+public class IntModBenchmark {
   private static final int M = (1 << 16) - 1;
 
-  public int timeConditional(int reps) {
+  @Benchmark int conditional(int reps) {
     int dummy = 5;
     for (int i = 0; i < reps; i++) {
       dummy += Integer.MAX_VALUE + conditionalMod(dummy, M);
@@ -39,7 +38,7 @@ public class IntModBenchmark extends SimpleBenchmark {
     return r < 0 ? r + m : r;
   }
 
-  public int timeDoubleRemainder(int reps) {
+  @Benchmark int doubleRemainder(int reps) {
     int dummy = 5;
     for (int i = 0; i < reps; i++) {
       dummy += Integer.MAX_VALUE + doubleRemainderMod(dummy, M);
@@ -52,7 +51,7 @@ public class IntModBenchmark extends SimpleBenchmark {
     return (int) ((a % m + (long) m) % m);
   }
 
-  public int timeRightShiftingMod(int reps) {
+  @Benchmark int rightShiftingMod(int reps) {
     int dummy = 5;
     for (int i = 0; i < reps; i++) {
       dummy += Integer.MAX_VALUE + rightShiftingMod(dummy, M);
@@ -66,7 +65,7 @@ public class IntModBenchmark extends SimpleBenchmark {
      return (int) (r + (r >> 63 & m));
   }
 
-  public int timeLeftShiftingMod(int reps) {
+  @Benchmark int leftShiftingMod(int reps) {
     int dummy = 5;
     for (int i = 0; i < reps; i++) {
       dummy += Integer.MAX_VALUE + leftShiftingMod(dummy, M);
@@ -79,16 +78,11 @@ public class IntModBenchmark extends SimpleBenchmark {
     return (int) ((a + ((long) m << 32)) % m);
   }
 
-  public int timeWrongMod(int reps) {
+  @Benchmark int wrongMod(int reps) {
     int dummy = 5;
     for (int i = 0; i < reps; i++) {
       dummy += Integer.MAX_VALUE + dummy % M;
     }
     return dummy;
-  }
-
-  // TODO: remove this from all examples when IDE plugins are ready
-  public static void main(String[] args) throws Exception {
-    Runner.main(IntModBenchmark.class, args);
   }
 }
