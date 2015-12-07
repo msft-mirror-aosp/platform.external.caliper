@@ -16,10 +16,9 @@
 
 package examples;
 
+import com.google.caliper.Benchmark;
 import com.google.caliper.Param;
-import com.google.caliper.api.Benchmark;
 import com.google.caliper.model.ArbitraryMeasurement;
-import com.google.caliper.runner.CaliperMain;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -30,7 +29,7 @@ import java.util.zip.Deflater;
 /**
  * Example "arbitrary measurement" benchmark.
  */
-public class CompressionSizeBenchmark extends Benchmark {
+public class CompressionSizeBenchmark {
 
   @Param({
       "this string will compress badly",
@@ -50,7 +49,7 @@ public class CompressionSizeBenchmark extends Benchmark {
       compressionLevelMap.put("huffmanOnly", Deflater.HUFFMAN_ONLY);
   }
 
-  public long timeSimpleCompression(int reps) {
+  @Benchmark long simpleCompression(int reps) {
     long dummy = 0;
     for (int i = 0; i < reps; i++) {
       dummy += compress(toCompress.getBytes()).length;
@@ -82,9 +81,5 @@ public class CompressionSizeBenchmark extends Benchmark {
     } catch (IOException e) {
     }
     return bos.toByteArray();
-  }
-
-  public static void main(String[] args) {
-    CaliperMain.main(CompressionSizeBenchmark.class, args);
   }
 }

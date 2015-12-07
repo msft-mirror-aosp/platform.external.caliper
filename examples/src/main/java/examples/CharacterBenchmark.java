@@ -16,15 +16,15 @@
 
 package examples;
 
+import com.google.caliper.BeforeExperiment;
+import com.google.caliper.Benchmark;
 import com.google.caliper.Param;
-import com.google.caliper.Runner;
-import com.google.caliper.SimpleBenchmark;
 
 /**
  * Tests various Character methods, intended for testing multiple
  * implementations against each other.
  */
-public class CharacterBenchmark extends SimpleBenchmark {
+public class CharacterBenchmark {
 
     @Param private CharacterSet characterSet;
 
@@ -32,7 +32,7 @@ public class CharacterBenchmark extends SimpleBenchmark {
 
     private char[] chars;
 
-    @Override protected void setUp() throws Exception {
+    @BeforeExperiment void setUp() throws Exception {
         this.chars = characterSet.chars;
     }
 
@@ -51,7 +51,7 @@ public class CharacterBenchmark extends SimpleBenchmark {
     }
 
     // A fake benchmark to give us a baseline.
-    public boolean timeIsSpace(int reps) {
+    @Benchmark boolean isSpace(int reps) {
         boolean dummy = false;
         if (overload == Overload.CHAR) {
             for (int i = 0; i < reps; ++i) {
@@ -69,7 +69,7 @@ public class CharacterBenchmark extends SimpleBenchmark {
         return dummy;
     }
 
-    public void timeDigit(int reps) {
+    @Benchmark void digit(int reps) {
         if (overload == Overload.CHAR) {
             for (int i = 0; i < reps; ++i) {
                 for (int ch = 0; ch < 65536; ++ch) {
@@ -85,7 +85,7 @@ public class CharacterBenchmark extends SimpleBenchmark {
         }
     }
 
-    public void timeGetNumericValue(int reps) {
+    @Benchmark void getNumericValue(int reps) {
         if (overload == Overload.CHAR) {
             for (int i = 0; i < reps; ++i) {
                 for (int ch = 0; ch < 65536; ++ch) {
@@ -101,7 +101,7 @@ public class CharacterBenchmark extends SimpleBenchmark {
         }
     }
 
-    public void timeIsDigit(int reps) {
+    @Benchmark void isDigit(int reps) {
         if (overload == Overload.CHAR) {
             for (int i = 0; i < reps; ++i) {
                 for (int ch = 0; ch < 65536; ++ch) {
@@ -117,7 +117,7 @@ public class CharacterBenchmark extends SimpleBenchmark {
         }
     }
 
-    public void timeIsIdentifierIgnorable(int reps) {
+    @Benchmark void isIdentifierIgnorable(int reps) {
         if (overload == Overload.CHAR) {
             for (int i = 0; i < reps; ++i) {
                 for (int ch = 0; ch < 65536; ++ch) {
@@ -133,7 +133,7 @@ public class CharacterBenchmark extends SimpleBenchmark {
         }
     }
 
-    public void timeIsJavaIdentifierPart(int reps) {
+    @Benchmark void isJavaIdentifierPart(int reps) {
         if (overload == Overload.CHAR) {
             for (int i = 0; i < reps; ++i) {
                 for (int ch = 0; ch < 65536; ++ch) {
@@ -149,7 +149,7 @@ public class CharacterBenchmark extends SimpleBenchmark {
         }
     }
 
-    public void timeIsJavaIdentifierStart(int reps) {
+    @Benchmark void isJavaIdentifierStart(int reps) {
         if (overload == Overload.CHAR) {
             for (int i = 0; i < reps; ++i) {
                 for (int ch = 0; ch < 65536; ++ch) {
@@ -165,7 +165,7 @@ public class CharacterBenchmark extends SimpleBenchmark {
         }
     }
 
-    public void timeIsLetter(int reps) {
+    @Benchmark void isLetter(int reps) {
         if (overload == Overload.CHAR) {
             for (int i = 0; i < reps; ++i) {
                 for (int ch = 0; ch < 65536; ++ch) {
@@ -181,7 +181,7 @@ public class CharacterBenchmark extends SimpleBenchmark {
         }
     }
 
-    public void timeIsLetterOrDigit(int reps) {
+    @Benchmark void isLetterOrDigit(int reps) {
         if (overload == Overload.CHAR) {
             for (int i = 0; i < reps; ++i) {
                 for (int ch = 0; ch < 65536; ++ch) {
@@ -197,7 +197,7 @@ public class CharacterBenchmark extends SimpleBenchmark {
         }
     }
 
-    public void timeIsLowerCase(int reps) {
+    @Benchmark void isLowerCase(int reps) {
         if (overload == Overload.CHAR) {
             for (int i = 0; i < reps; ++i) {
                 for (int ch = 0; ch < 65536; ++ch) {
@@ -213,7 +213,7 @@ public class CharacterBenchmark extends SimpleBenchmark {
         }
     }
 
-    public void timeIsSpaceChar(int reps) {
+    @Benchmark void isSpaceChar(int reps) {
         if (overload == Overload.CHAR) {
             for (int i = 0; i < reps; ++i) {
                 for (int ch = 0; ch < 65536; ++ch) {
@@ -229,7 +229,7 @@ public class CharacterBenchmark extends SimpleBenchmark {
         }
     }
 
-    public void timeIsUpperCase(int reps) {
+    @Benchmark void isUpperCase(int reps) {
         if (overload == Overload.CHAR) {
             for (int i = 0; i < reps; ++i) {
                 for (int ch = 0; ch < 65536; ++ch) {
@@ -245,7 +245,7 @@ public class CharacterBenchmark extends SimpleBenchmark {
         }
     }
 
-    public void timeIsWhitespace(int reps) {
+    @Benchmark void isWhitespace(int reps) {
         if (overload == Overload.CHAR) {
             for (int i = 0; i < reps; ++i) {
                 for (int ch = 0; ch < 65536; ++ch) {
@@ -261,7 +261,7 @@ public class CharacterBenchmark extends SimpleBenchmark {
         }
     }
 
-    public void timeToLowerCase(int reps) {
+    @Benchmark void toLowerCase(int reps) {
         if (overload == Overload.CHAR) {
             for (int i = 0; i < reps; ++i) {
                 for (int ch = 0; ch < 65536; ++ch) {
@@ -277,7 +277,7 @@ public class CharacterBenchmark extends SimpleBenchmark {
         }
     }
 
-    public void timeToUpperCase(int reps) {
+    @Benchmark void toUpperCase(int reps) {
         if (overload == Overload.CHAR) {
             for (int i = 0; i < reps; ++i) {
                 for (int ch = 0; ch < 65536; ++ch) {
@@ -291,10 +291,5 @@ public class CharacterBenchmark extends SimpleBenchmark {
                 }
             }
         }
-    }
-
-    // TODO: remove this from all examples when IDE plugins are ready
-    public static void main(String[] args) throws Exception {
-        Runner.main(CharacterBenchmark.class, args);
     }
 }

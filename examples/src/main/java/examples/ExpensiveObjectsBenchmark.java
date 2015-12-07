@@ -16,9 +16,7 @@
 
 package examples;
 
-import com.google.caliper.SimpleBenchmark;
-import com.google.caliper.runner.CaliperMain;
-
+import com.google.caliper.Benchmark;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
@@ -28,49 +26,43 @@ import java.util.Locale;
  * Benchmarks creation and cloning various expensive objects.
  */
 @SuppressWarnings({"ResultOfObjectAllocationIgnored"}) // TODO: should fix!
-public class ExpensiveObjectsBenchmark extends SimpleBenchmark {
-  public void timeNewDecimalFormatSymbols(int reps) {
+public class ExpensiveObjectsBenchmark {
+  @Benchmark void newDecimalFormatSymbols(int reps) {
     for (int i = 0; i < reps; ++i) {
       new DecimalFormatSymbols(Locale.US);
     }
   }
 
-  public void timeClonedDecimalFormatSymbols(int reps) {
+  @Benchmark void clonedDecimalFormatSymbols(int reps) {
     DecimalFormatSymbols dfs = new DecimalFormatSymbols(Locale.US);
     for (int i = 0; i < reps; ++i) {
       dfs.clone();
     }
   }
 
-  public void timeNewNumberFormat(int reps) {
+  @Benchmark void newNumberFormat(int reps) {
     for (int i = 0; i < reps; ++i) {
       NumberFormat.getInstance(Locale.US);
     }
   }
 
-  public void timeClonedNumberFormat(int reps) {
+  @Benchmark void clonedNumberFormat(int reps) {
     NumberFormat nf = NumberFormat.getInstance(Locale.US);
     for (int i = 0; i < reps; ++i) {
       nf.clone();
     }
   }
 
-  public void timeNewSimpleDateFormat(int reps) {
+  @Benchmark void newSimpleDateFormat(int reps) {
     for (int i = 0; i < reps; ++i) {
       new SimpleDateFormat();
     }
   }
 
-  public void timeClonedSimpleDateFormat(int reps) {
+  @Benchmark void clonedSimpleDateFormat(int reps) {
     SimpleDateFormat sdf = new SimpleDateFormat();
     for (int i = 0; i < reps; ++i) {
       sdf.clone();
     }
-  }
-
-  // TODO: remove this from all examples when IDE plugins are ready
-  public static void main(String[] args) throws Exception {
-    CaliperMain.main(ExpensiveObjectsBenchmark.class, args);
-//    Runner.main(ExpensiveObjectsBenchmark.class, args);
   }
 }

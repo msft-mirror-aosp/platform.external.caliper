@@ -16,14 +16,13 @@
 
 package examples;
 
+import com.google.caliper.Benchmark;
 import com.google.caliper.Param;
-import com.google.caliper.Runner;
-import com.google.caliper.SimpleBenchmark;
 
 /**
  * Measures the various ways the JDK converts doubles to strings.
  */
-public class DoubleToStringBenchmark2 extends SimpleBenchmark {
+public class DoubleToStringBenchmark2 {
   @Param boolean useWrapper;
 
   enum Value {
@@ -41,7 +40,7 @@ public class DoubleToStringBenchmark2 extends SimpleBenchmark {
 
   @Param Value value;
 
-  public int timeToString(int reps) {
+  @Benchmark int toString(int reps) {
     int dummy = 0;
     if (useWrapper) {
       Double d = value.d;
@@ -57,7 +56,7 @@ public class DoubleToStringBenchmark2 extends SimpleBenchmark {
     return dummy;
   }
 
-  public int timeStringValueOf(int reps) {
+  @Benchmark int stringValueOf(int reps) {
     int dummy = 0;
     if (useWrapper) {
       Double d = value.d;
@@ -73,7 +72,7 @@ public class DoubleToStringBenchmark2 extends SimpleBenchmark {
     return dummy;
   }
 
-  public int timeStringFormat(int reps) {
+  @Benchmark int stringFormat(int reps) {
     int dummy = 0;
     if (useWrapper) {
       Double d = value.d;
@@ -89,7 +88,7 @@ public class DoubleToStringBenchmark2 extends SimpleBenchmark {
     return dummy;
   }
 
-  public int timeQuoteTrick(int reps) {
+  @Benchmark int quoteTrick(int reps) {
     int dummy = 0;
     if (useWrapper) {
       Double d = value.d;
@@ -103,9 +102,5 @@ public class DoubleToStringBenchmark2 extends SimpleBenchmark {
       }
     }
     return dummy;
-  }
-
-  public static void main(String[] args) throws Exception {
-    Runner.main(DoubleToStringBenchmark2.class, args);
   }
 }

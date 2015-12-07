@@ -16,16 +16,17 @@
 
 package examples;
 
+import com.google.caliper.BeforeExperiment;
+import com.google.caliper.Benchmark;
 import com.google.caliper.Param;
-import com.google.caliper.Runner;
-import com.google.caliper.SimpleBenchmark;
+
 import java.util.AbstractList;
 import java.util.List;
 
 /**
  * Measures iterating through list elements.
  */
-public class ListIterationBenchmark extends SimpleBenchmark {
+public class ListIterationBenchmark {
 
   @Param({"0", "10", "100", "1000"})
   private int length;
@@ -33,7 +34,7 @@ public class ListIterationBenchmark extends SimpleBenchmark {
   private List<Object> list;
   private Object[] array;
 
-  @Override protected void setUp() {
+  @BeforeExperiment void setUp() {
     array = new Object[length];
     for (int i = 0; i < length; i++) {
       array[i] = new Object();
@@ -50,24 +51,23 @@ public class ListIterationBenchmark extends SimpleBenchmark {
     };
   }
 
-  @SuppressWarnings({"UnusedDeclaration"}) // TODO: fix
-  public void timeListIteration(int reps) {
+  @Benchmark int listIteration(int reps) {
+    int dummy = 0;
     for (int i = 0; i < reps; i++) {
       for (Object value : list) {
+        dummy |= value.hashCode();
       }
     }
+    return dummy;
   }
 
-  @SuppressWarnings({"UnusedDeclaration"}) // TODO: fix
-  public void timeArrayIteration(int reps) {
+  @Benchmark int arrayIteration(int reps) {
+    int dummy = 0;
     for (int i = 0; i < reps; i++) {
       for (Object value : array) {
+        dummy |= value.hashCode();
       }
     }
-  }
-
-  // TODO: remove this from all examples when IDE plugins are ready
-  public static void main(String[] args) throws Exception {
-    Runner.main(ListIterationBenchmark.class, args);
+    return dummy;
   }
 }

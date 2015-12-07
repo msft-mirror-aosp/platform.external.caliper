@@ -16,117 +16,176 @@
 
 package examples;
 
+import static java.lang.Character.MIN_SURROGATE;
+
+import com.google.caliper.Benchmark;
 import com.google.caliper.Param;
-import com.google.caliper.Runner;
-import com.google.caliper.SimpleBenchmark;
 
 /**
  * Tests the performance of various StringBuilder methods.
  */
-public class StringBuilderBenchmark extends SimpleBenchmark {
+public class StringBuilderBenchmark {
 
-    @Param({"1", "10", "100"}) private int length;
+  @Param({"1", "10", "100"}) private int length;
 
-    public void timeAppendBoolean(int reps) {
-        for (int i = 0; i < reps; ++i) {
-            StringBuilder sb = new StringBuilder();
-            for (int j = 0; j < length; ++j) {
-                sb.append(true);
-            }
+  @Benchmark void appendBoolean(int reps) {
+    StringBuilder sb = new StringBuilder();
+    for (int i = 0; i < reps; ++i) {
+      sb.setLength(0);
+      for (int j = 0; j < length; ++j) {
+        sb.append(true);
+        sb.append(false);
+      }
+    }
+  }
+
+  @Benchmark void appendChar(int reps) {
+    for (int i = 0; i < reps; ++i) {
+      StringBuilder sb = new StringBuilder();
+      for (int j = 0; j < length; ++j) {
+        sb.append('c');
+      }
+    }
+  }
+
+  @Benchmark void appendCharArray(int reps) {
+    char[] chars = "chars".toCharArray();
+    for (int i = 0; i < reps; ++i) {
+      StringBuilder sb = new StringBuilder();
+      for (int j = 0; j < length; ++j) {
+        sb.append(chars);
+      }
+    }
+  }
+
+  @Benchmark void appendCharSequence(int reps) {
+    CharSequence cs = "chars";
+    for (int i = 0; i < reps; ++i) {
+      StringBuilder sb = new StringBuilder();
+      for (int j = 0; j < length; ++j) {
+        sb.append(cs);
+      }
+    }
+  }
+
+  @Benchmark void appendDouble(int reps) {
+    double d = 1.2;
+    for (int i = 0; i < reps; ++i) {
+      StringBuilder sb = new StringBuilder();
+      for (int j = 0; j < length; ++j) {
+        sb.append(d);
+      }
+    }
+  }
+
+  @Benchmark void appendFloat(int reps) {
+    float f = 1.2f;
+    for (int i = 0; i < reps; ++i) {
+      StringBuilder sb = new StringBuilder();
+      for (int j = 0; j < length; ++j) {
+        sb.append(f);
+      }
+    }
+  }
+
+  @Benchmark void appendInt(int reps) {
+    int n = 123;
+    for (int i = 0; i < reps; ++i) {
+      StringBuilder sb = new StringBuilder();
+      for (int j = 0; j < length; ++j) {
+        sb.append(n);
+      }
+    }
+  }
+
+  @Benchmark void appendLong(int reps) {
+    long l = 123;
+    for (int i = 0; i < reps; ++i) {
+      StringBuilder sb = new StringBuilder();
+      for (int j = 0; j < length; ++j) {
+        sb.append(l);
+      }
+    }
+  }
+
+  @Benchmark void appendObject(int reps) {
+    Object o = new Object();
+    for (int i = 0; i < reps; ++i) {
+      StringBuilder sb = new StringBuilder();
+      for (int j = 0; j < length; ++j) {
+        sb.append(o);
+      }
+    }
+  }
+
+  @Benchmark void appendString(int reps) {
+    String s = "chars";
+    for (int i = 0; i < reps; ++i) {
+      StringBuilder sb = new StringBuilder();
+      for (int j = 0; j < length; ++j) {
+        sb.append(s);
+      }
+    }
+  }
+
+  @Benchmark void appendNull(int reps) {
+    StringBuilder sb = new StringBuilder();
+    for (int i = 0; i < reps; ++i) {
+      sb.setLength(0);
+      for (int j = 0; j < length; ++j) {
+        sb.append((String)null);
+        sb.append((StringBuilder)null);
+      }
+    }
+  }
+
+  /** Times .reverse() when no surrogates are present. */
+  @Benchmark void reverseNoSurrogates(int reps) {
+    final int length = Math.min(this.length, MIN_SURROGATE);
+    StringBuilder sb = new StringBuilder();
+    for (int j = 0; j < length; j++) {
+      sb.appendCodePoint(j);
+    }
+    for (int i = 0; i < reps; i++) {
+      for (int j = 0; j < 4; j++) {
+        sb.reverse();
+      }
+      if (sb.codePointAt(0) > MIN_SURROGATE)
+        throw new Error();
+    }
+  }
+
+  /** Times .codePointAt(int) when no surrogates are present. */
+  @Benchmark void codePointAtNoSurrogates(int reps) {
+    final int length = Math.min(this.length, MIN_SURROGATE);
+    StringBuilder sb = new StringBuilder();
+    for (int j = 0; j < length; j++) {
+      sb.appendCodePoint(j);
+    }
+    for (int i = 0; i < reps; i++) {
+      for (int j = 0; j < 4; j++) {
+        for (int k = 0; k < length - 1; k++) {
+          if (sb.codePointAt(k) > MIN_SURROGATE)
+            throw new Error();
         }
+      }
     }
+  }
 
-    public void timeAppendChar(int reps) {
-        for (int i = 0; i < reps; ++i) {
-            StringBuilder sb = new StringBuilder();
-            for (int j = 0; j < length; ++j) {
-                sb.append('c');
-            }
+  /** Times .codePointBefore(int) when no surrogates are present. */
+  @Benchmark void codePointBeforeNoSurrogates(int reps) {
+    final int length = Math.min(this.length, MIN_SURROGATE);
+    StringBuilder sb = new StringBuilder();
+    for (int j = 0; j < length; j++) {
+      sb.appendCodePoint(j);
+    }
+    for (int i = 0; i < reps; i++) {
+      for (int j = 0; j < 4; j++) {
+        for (int k = 1; k < length; k++) {
+          if (sb.codePointBefore(k) > MIN_SURROGATE)
+            throw new Error();
         }
+      }
     }
-
-    public void timeAppendCharArray(int reps) {
-        char[] chars = "chars".toCharArray();
-        for (int i = 0; i < reps; ++i) {
-            StringBuilder sb = new StringBuilder();
-            for (int j = 0; j < length; ++j) {
-                sb.append(chars);
-            }
-        }
-    }
-
-    public void timeAppendCharSequence(int reps) {
-        CharSequence cs = "chars";
-        for (int i = 0; i < reps; ++i) {
-            StringBuilder sb = new StringBuilder();
-            for (int j = 0; j < length; ++j) {
-                sb.append(cs);
-            }
-        }
-    }
-
-    public void timeAppendDouble(int reps) {
-        double d = 1.2;
-        for (int i = 0; i < reps; ++i) {
-            StringBuilder sb = new StringBuilder();
-            for (int j = 0; j < length; ++j) {
-                sb.append(d);
-            }
-        }
-    }
-
-    public void timeAppendFloat(int reps) {
-        float f = 1.2f;
-        for (int i = 0; i < reps; ++i) {
-            StringBuilder sb = new StringBuilder();
-            for (int j = 0; j < length; ++j) {
-                sb.append(f);
-            }
-        }
-    }
-
-    public void timeAppendInt(int reps) {
-        int n = 123;
-        for (int i = 0; i < reps; ++i) {
-            StringBuilder sb = new StringBuilder();
-            for (int j = 0; j < length; ++j) {
-                sb.append(n);
-            }
-        }
-    }
-
-    public void timeAppendLong(int reps) {
-        long l = 123;
-        for (int i = 0; i < reps; ++i) {
-            StringBuilder sb = new StringBuilder();
-            for (int j = 0; j < length; ++j) {
-                sb.append(l);
-            }
-        }
-    }
-
-    public void timeAppendObject(int reps) {
-        Object o = new Object();
-        for (int i = 0; i < reps; ++i) {
-            StringBuilder sb = new StringBuilder();
-            for (int j = 0; j < length; ++j) {
-                sb.append(o);
-            }
-        }
-    }
-
-    public void timeAppendString(int reps) {
-        String s = "chars";
-        for (int i = 0; i < reps; ++i) {
-            StringBuilder sb = new StringBuilder();
-            for (int j = 0; j < length; ++j) {
-                sb.append(s);
-            }
-        }
-    }
-
-    // TODO: remove this from all examples when IDE plugins are ready
-    public static void main(String[] args) throws Exception {
-        Runner.main(StringBuilderBenchmark.class, args);
-    }
+  }
 }
