@@ -46,6 +46,7 @@ PROCESSOR_LIBRARIES := $(DAGGER2_PROCESSOR_LIBRARIES)
 PROCESSOR_CLASSES := $(DAGGER2_PROCESSOR_CLASSES)
 include external/dagger2/java_annotation_processors.mk
 
+LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_HOST_JAVA_LIBRARY)
 
 # Remember the location of the generated files, this is needed for when
@@ -68,6 +69,7 @@ LOCAL_SRC_FILES := \
   caliper/src/main/java/com/google/caliper/All.java \
   caliper/src/main/java/com/google/caliper/Benchmark.java
 
+LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_JAVA_LIBRARY)
 
 # build caliper tests
@@ -96,6 +98,7 @@ PROCESSOR_LIBRARIES := $(DAGGER2_PROCESSOR_LIBRARIES)
 PROCESSOR_CLASSES := $(DAGGER2_PROCESSOR_CLASSES)
 include external/dagger2/java_annotation_processors.mk
 
+LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_HOST_JAVA_LIBRARY)
 
 # build caliper examples
@@ -114,6 +117,7 @@ LOCAL_STATIC_JAVA_LIBRARIES := \
   junit \
   mockito-host
 
+LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_HOST_JAVA_LIBRARY)
 
 # Build host dependencies.
