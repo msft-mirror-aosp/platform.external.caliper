@@ -24,6 +24,8 @@ LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE_CLASS := JAVA_LIBRARIES
 LOCAL_SRC_FILES := $(call all-java-files-under, caliper/src/main/java/)
 LOCAL_JAVA_RESOURCE_DIRS := caliper/src/main/resources
+# Required for use of javax.annotation.Generated per http://b/62050818
+LOCAL_JAVACFLAGS := $(if $(EXPERIMENTAL_USE_OPENJDK9),-J--add-modules=java.xml.ws.annotation)
 LOCAL_IS_HOST_MODULE := true
 
 LOCAL_STATIC_JAVA_LIBRARIES := \
@@ -78,6 +80,8 @@ LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE_CLASS := JAVA_LIBRARIES
 LOCAL_SRC_FILES := $(call all-java-files-under, caliper/src/test/java/)
 LOCAL_JAVA_RESOURCE_DIRS := caliper/src/test/resources
+# Required for use of javax.annotation.Generated per http://b/62050818
+LOCAL_JAVACFLAGS := $(if $(EXPERIMENTAL_USE_OPENJDK9),-J--add-modules=java.xml.ws.annotation,)
 LOCAL_IS_HOST_MODULE := true
 
 LOCAL_STATIC_JAVA_LIBRARIES := \
