@@ -22,6 +22,7 @@ import com.google.caliper.platform.Platform;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.base.Joiner;
 
@@ -83,9 +84,24 @@ public final class DalvikPlatform extends Platform {
   }
 
   @Override
-  public String workerClassPath() {
+  protected String workerClassPath() {
     // TODO(user): Find a way to get the class path programmatically from the class loader.
     return System.getProperty("java.class.path");
+  }
+
+  /**
+   * Construct the set of arguments that specify the classpath which
+   * is passed to the worker.
+   *
+   * <p>
+   * Use {@code -Djava.class.path=$classpath} for dalvik because it is supported
+   * by dalvikvm and also by app_process (which doesn't recognize "-cp args").
+   * </p>
+   */
+  @Override
+  public ImmutableList<String> workerClassPathArgs() {
+    String classPathArgs = String.format("-Djava.class.path=%s", workerClassPath());
+    return ImmutableList.of(classPathArgs);
   }
 
   @Override
