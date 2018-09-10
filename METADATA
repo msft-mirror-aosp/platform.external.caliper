@@ -7,8 +7,8 @@ third_party {
     value: "https://github.com/google/caliper"
   }
   url {
-    type: GIT
-    value: "https://github.com/google/caliper.git"
+    type: ARCHIVE
+    value: "https://github.com/google/caliper/archive/73efbe138dafba57d6a890257961ba83f41b89f2.zip"
   }
   version: "73efbe138dafba57d6a890257961ba83f41b89f2"
   last_upgrade_date {
