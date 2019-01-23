@@ -32,8 +32,7 @@ java_library_host {
     ],
 
     // Use Dagger2 annotation processor
-    annotation_processors: ["dagger2-compiler"],
-    annotation_processor_classes: ["dagger.internal.codegen.ComponentProcessor"],
+    plugins: ["dagger2-compiler"],
 
     java_version: "1.7",
 }
@@ -80,8 +79,7 @@ java_test_host {
     ],
 
     // Use Dagger2 annotation processor
-    annotation_processors: ["dagger2-compiler"],
-    annotation_processor_classes: ["dagger.internal.codegen.ComponentProcessor"],
+    plugins: ["dagger2-compiler"],
 
     java_version: "1.7",
 }
