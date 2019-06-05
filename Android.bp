@@ -20,8 +20,6 @@ java_library_host {
 
     srcs: ["caliper/src/main/java/**/*.java"],
     java_resource_dirs: ["caliper/src/main/resources"],
-    // Required for use of javax.annotation.Generated per http://b/62050818
-    javacflags: ["-J--add-modules=java.xml.ws.annotation"],
 
     static_libs: [
         "apache-commons-math",
@@ -69,8 +67,6 @@ java_test_host {
 
     srcs: ["caliper/src/test/java/**/*.java"],
     java_resource_dirs: ["caliper/src/test/resources"],
-    // Required for use of javax.annotation.Generated per http://b/62050818
-    javacflags: ["-J--add-modules=java.xml.ws.annotation"],
 
     static_libs: [
         "caliper",
