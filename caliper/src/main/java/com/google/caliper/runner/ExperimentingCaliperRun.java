@@ -30,6 +30,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Queues;
 import com.google.common.util.concurrent.AsyncFunction;
+import com.google.common.util.concurrent.FutureFallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
@@ -57,9 +58,9 @@ public final class ExperimentingCaliperRun implements CaliperRun {
 
   private static final Logger logger = Logger.getLogger(ExperimentingCaliperRun.class.getName());
 
-  private static final AsyncFunction<Throwable, Object> FALLBACK_TO_NULL = new AsyncFunction<Throwable, Object>() {
+  private static final FutureFallback<Object> FALLBACK_TO_NULL = new FutureFallback<Object>() {
     final ListenableFuture<Object> nullFuture = Futures.immediateFuture(null);
-    @Override public ListenableFuture<Object> apply(Throwable t) throws Exception {
+    @Override public ListenableFuture<Object> create(Throwable t) throws Exception {
       return nullFuture;
     }
   };
@@ -219,16 +220,16 @@ public final class ExperimentingCaliperRun implements CaliperRun {
       // each of these trials can only start after all prior trials have finished, so we use
       // Futures.transform to force the sequencing.
       ListenableFuture<TrialResult> current =
-          Futures.transformAsync(
+          Futures.transform(
               previous,
               new AsyncFunction<Object, TrialResult>() {
                 @Override public ListenableFuture<TrialResult> apply(Object ignored) {
                   return executor.submit(scheduledTrial.trialTask());
                 }
-              }, MoreExecutors.directExecutor());
+              });
       pendingTrials.add(current);
       // ignore failure of the prior task.
-      previous = Futures.catchingAsync(current, Throwable.class, FALLBACK_TO_NULL, MoreExecutors.directExecutor());
+      previous = Futures.withFallback(current, FALLBACK_TO_NULL);
     }
     return pendingTrials;
   }

@@ -158,11 +158,11 @@ import javax.inject.Inject;
     Charset processCharset = Charset.defaultCharset();
     runningReadStreams.addAndGet(2);
     openStreams.addAndGet(1);
-    ListenableFuture possiblyIgnoredError1 = streamExecutor.submit(
+    streamExecutor.submit(
         threadRenaming("worker-stderr", 
             new StreamReader("stderr", 
                 new InputStreamReader(process.getErrorStream(), processCharset))));
-    ListenableFuture possiblyIgnoredError2 = streamExecutor.submit(
+    streamExecutor.submit(
         threadRenaming("worker-stdout",
             new StreamReader("stdout", 
                 new InputStreamReader(process.getInputStream(), processCharset))));
@@ -176,7 +176,7 @@ import javax.inject.Inject;
               socketWriter = openedSocket.writer();
               runningReadStreams.addAndGet(1);
               openStreams.addAndGet(1);
-              ListenableFuture possiblyIgnoredError = streamExecutor.submit(threadRenaming("worker-socket",
+              streamExecutor.submit(threadRenaming("worker-socket",
                   new SocketStreamReader(openedSocket.reader())));
             } catch (ExecutionException e) {
               notifyFailed(e.getCause());
@@ -250,7 +250,7 @@ import javax.inject.Inject;
     // Experimentally, even with well behaved processes there is some time between when all streams
     // are closed as part of process shutdown and when the process has exited. So to not fail 
     // flakily when shutting down normally we need to do a timed wait
-    ListenableFuture possiblyIgnoredError = streamExecutor.submit(new Callable<Void>() {
+    streamExecutor.submit(new Callable<Void>() {
       @Override public Void call() throws Exception {
         boolean threw = true;
         try {

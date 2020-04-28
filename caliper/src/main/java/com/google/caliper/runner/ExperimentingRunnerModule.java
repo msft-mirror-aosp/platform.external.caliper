@@ -39,8 +39,7 @@ import com.google.common.util.concurrent.Service;
 import dagger.MapKey;
 import dagger.Module;
 import dagger.Provides;
-import dagger.multibindings.IntoMap;
-import dagger.multibindings.IntoSet;
+import dagger.Provides.Type;
 
 import java.io.PrintWriter;
 import java.lang.reflect.Method;
@@ -61,14 +60,12 @@ import javax.inject.Singleton;
 final class ExperimentingRunnerModule {
   private static final String RUNNER_MAX_PARALLELISM_OPTION = "runner.maxParallelism";
 
-  @Provides
-  @IntoSet
+  @Provides(type = Type.SET)
   static Service provideServerSocketService(ServerSocketService impl) {
     return impl;
   }
 
-  @Provides
-  @IntoSet
+  @Provides(type = Type.SET)
   static Service provideTrialOutputFactoryService(TrialOutputFactoryService impl) {
     return impl;
   }
@@ -105,15 +102,13 @@ final class ExperimentingRunnerModule {
     Class<? extends ResultProcessor> value();
   }
 
-  @Provides
-  @IntoMap
+  @Provides(type = Type.MAP)
   @ResultProcessorClassKey(OutputFileDumper.class)
   static ResultProcessor provideOutputFileDumper(OutputFileDumper impl) {
     return impl;
   }
 
-  @Provides
-  @IntoMap
+  @Provides(type = Type.MAP)
   @ResultProcessorClassKey(HttpUploader.class)
   static ResultProcessor provideHttpUploader(HttpUploader impl) {
     return impl;
@@ -162,22 +157,19 @@ final class ExperimentingRunnerModule {
     Class<? extends Instrument> value();
   }
 
-  @Provides
-  @IntoMap
+  @Provides(type = Type.MAP)
   @InstrumentClassKey(ArbitraryMeasurementInstrument.class)
   static Instrument provideArbitraryMeasurementInstrument() {
     return new ArbitraryMeasurementInstrument();
   }
 
-  @Provides
-  @IntoMap
+  @Provides(type = Type.MAP)
   @InstrumentClassKey(AllocationInstrument.class)
   static Instrument provideAllocationInstrument() {
     return new AllocationInstrument();
   }
 
-  @Provides
-  @IntoMap
+  @Provides(type = Type.MAP)
   @InstrumentClassKey(RuntimeInstrument.class)
   static Instrument provideRuntimeInstrument(
       @NanoTimeGranularity ShortDuration nanoTimeGranularity) {

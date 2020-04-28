@@ -26,7 +26,7 @@ import com.google.common.collect.ImmutableMap;
 import dagger.MapKey;
 import dagger.Module;
 import dagger.Provides;
-import dagger.multibindings.IntoMap;
+import dagger.Provides.Type;
 
 import java.util.Map;
 import java.util.Random;
@@ -80,43 +80,37 @@ final class WorkerModule {
     Class<? extends Worker> value();
   }
 
-  @Provides
-  @IntoMap
+  @Provides(type = Type.MAP)
   @WorkerClassKey(ArbitraryMeasurementWorker.class)
   static Worker provideArbitraryMeasurementWorker(ArbitraryMeasurementWorker impl) {
     return impl;
   }
 
-  @Provides
-  @IntoMap
+  @Provides(type = Type.MAP)
   @WorkerClassKey(MicrobenchmarkAllocationWorker.class)
   static Worker provideMicrobenchmarkAllocationWorker(MicrobenchmarkAllocationWorker impl) {
     return impl;
   }
 
-  @Provides
-  @IntoMap
+  @Provides(type = Type.MAP)
   @WorkerClassKey(MacrobenchmarkWorker.class)
   static Worker provideMacrobenchmarkWorker(MacrobenchmarkWorker impl) {
     return impl;
   }
 
-  @Provides
-  @IntoMap
+  @Provides(type = Type.MAP)
   @WorkerClassKey(MacrobenchmarkAllocationWorker.class)
   static Worker provideMacrobenchmarkAllocationWorker(MacrobenchmarkAllocationWorker impl) {
     return impl;
   }
 
-  @Provides
-  @IntoMap
+  @Provides(type = Type.MAP)
   @WorkerClassKey(RuntimeWorker.Micro.class)
   static Worker provideRuntimeWorkerMicro(RuntimeWorker.Micro impl) {
     return impl;
   }
 
-  @Provides
-  @IntoMap
+  @Provides(type = Type.MAP)
   @WorkerClassKey(RuntimeWorker.Pico.class)
   static Worker provideRuntimeWorkerPico(RuntimeWorker.Pico impl) {
     return impl;

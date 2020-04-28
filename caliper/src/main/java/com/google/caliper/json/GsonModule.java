@@ -23,7 +23,7 @@ import com.google.gson.TypeAdapterFactory;
 import com.google.gson.internal.bind.TypeAdapters;
 import dagger.Module;
 import dagger.Provides;
-import dagger.multibindings.IntoSet;
+import dagger.Provides.Type;
 import org.joda.time.Instant;
 import java.util.Set;
 
@@ -34,26 +34,22 @@ import java.util.Set;
 @Module
 public final class GsonModule {
 
-  @Provides
-  @IntoSet
+  @Provides(type = Type.SET)
   static TypeAdapterFactory provideImmutableListTypeAdapterFactory() {
     return new ImmutableListTypeAdatperFactory();
   }
 
-  @Provides
-  @IntoSet
+  @Provides(type = Type.SET)
   static TypeAdapterFactory provideImmutableMapTypeAdapterFactory() {
     return new ImmutableMapTypeAdapterFactory();
   }
 
-  @Provides
-  @IntoSet
+  @Provides(type = Type.SET)
   static TypeAdapterFactory provideNaturallySortedMapTypeAdapterFactory() {
     return new NaturallySortedMapTypeAdapterFactory();
   }
 
-  @Provides
-  @IntoSet
+  @Provides(type = Type.SET)
   static TypeAdapterFactory provideImmutableMultimapTypeAdapterFactory() {
     return new ImmutableMultimapTypeAdapterFactory();
   }
@@ -63,8 +59,7 @@ public final class GsonModule {
     return new AnnotationExclusionStrategy();
   }
 
-  @Provides
-  @IntoSet
+  @Provides(type = Type.SET)
   static TypeAdapterFactory provideTypeAdapterFactoryForInstant(
       InstantTypeAdapter typeAdapter) {
     return TypeAdapters.newFactory(Instant.class, typeAdapter);
