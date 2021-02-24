@@ -113,6 +113,11 @@ java_test_host {
         "junit",
         "mockito",
     ],
+    // Avoid the tests running as unit tests. They have some jar requirement that doesn't currently
+    // quite work in CI.
+    test_options: {
+        unit_test: false,
+    },
 
     // Use Dagger2 annotation processor
     plugins: ["dagger2-compiler"],
