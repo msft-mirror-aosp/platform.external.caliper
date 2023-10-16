@@ -65,6 +65,7 @@ java_library_host {
         "apache-commons-math",
         "caliper-prebuilts",
         "dagger2",
+        "gson",
         "guava",
         "jsr330",
     ],
@@ -152,14 +153,8 @@ java_library_host {
 // ============================================================
 
 java_import_host {
-    name: "caliper-gson",
-    jars: ["lib/gson-2.2.2.jar"],
-}
-
-java_import_host {
     name: "caliper-prebuilts",
     jars: [
-        "lib/gson-2.2.2.jar",
         "lib/java-allocation-instrumenter-2.0.jar",
         "lib/jersey-client-1.11.jar",
         "lib/jersey-core-1.11.jar",
